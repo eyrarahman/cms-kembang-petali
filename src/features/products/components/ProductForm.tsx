@@ -10,40 +10,92 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { Category } from "@/features/categories/types/category.types";
 
-import { createProduct } from "../services/product-admin.service";
 import { ProductStatus } from "../types/product.types";
 import { generateSlug } from "../utils/product.utils";
 import { ProductImageUploader } from "./ProductImageUploader";
 import { PendingProductImage } from "../types/product-image-upload.types";
+import Image from "next/image";
+import { Product } from "../types/product.types";
+import {
+    createProduct,
+    updateProduct,
+} from "../services/product-admin.service";
+import { EditProductImageManager } from "./EditProductImageManager";
+import { ProductImage } from "../types/product-image.types";
+
 
 type ProductFormProps = {
     categories: Category[];
+    mode?: "create" | "edit";
+    product?: Product;
 };
 
 export function ProductForm({
     categories,
+    mode = "create",
+    product,
+
 }: ProductFormProps) {
     const router = useRouter();
 
     const [images, setImages] =
         useState<PendingProductImage[]>([]);
 
-    const [name, setName] = useState("");
-    const [slug, setSlug] = useState("");
+    const [existingImages, setExistingImages] =
+        useState<ProductImage[]>(
+            product?.images ?? []
+        );
+
+    const [
+        deletedImages,
+        setDeletedImages,
+    ] = useState<ProductImage[]>([]);
+
+    const [name, setName] =
+        useState(product?.name ?? "");
+
+    const [slug, setSlug] =
+        useState(product?.slug ?? "");
+
     const [description, setDescription] =
-        useState("");
+        useState(
+            product?.description ?? ""
+        );
 
     const [sellingPrice, setSellingPrice] =
-        useState("");
+        useState(
+            product
+                ? String(product.price)
+                : ""
+        );
 
     const [status, setStatus] =
-        useState<ProductStatus>("available");
+        useState<ProductStatus>(
+            product?.status ?? "available"
+        );
 
     const [featured, setFeatured] =
-        useState(false);
+        useState(
+            product?.featured ?? false
+        );
 
     const [categoryIds, setCategoryIds] =
-        useState<string[]>([]);
+        useState<string[]>(() => {
+            if (!product) {
+                return [];
+            }
+
+            return categories
+                .filter((category) =>
+                    product.categorySlugs.includes(
+                        category.slug
+                    )
+                )
+                .map(
+                    (category) =>
+                        category.id
+                );
+        });
 
     const [isLoading, setIsLoading] =
         useState(false);
@@ -110,17 +162,44 @@ export function ProductForm({
         setIsLoading(true);
 
         try {
-            await createProduct({
-                name,
-                slug,
-                description,
-                sellingPrice:
-                    Number(sellingPrice),
-                status,
-                featured,
-                categoryIds,
-                images,
-            });
+            if (
+                mode === "edit" &&
+                product
+            ) {
+                await updateProduct(
+                    product.id,
+                    {
+                        name,
+                        slug,
+                        description,
+
+                        sellingPrice:
+                            Number(sellingPrice),
+
+                        status,
+                        featured,
+                        categoryIds,
+
+                        existingImages,
+
+                        newImages: images,
+
+                        deletedImages,
+                    }
+                );
+            } else {
+                await createProduct({
+                    name,
+                    slug,
+                    description,
+                    sellingPrice:
+                        Number(sellingPrice),
+                    status,
+                    featured,
+                    categoryIds,
+                    images,
+                });
+            }
 
             router.push(
                 "/admin/products"
@@ -307,12 +386,30 @@ export function ProductForm({
                 </label>
             </div>
 
-            <div className="rounded-2xl border border-rose-100 bg-white p-6">
-                <ProductImageUploader
-                    images={images}
-                    onChange={setImages}
-                />
-            </div>
+            {mode === "create" ? (
+                <div className="rounded-2xl border border-rose-100 bg-white p-6">
+                    <ProductImageUploader
+                        images={images}
+                        onChange={setImages}
+                    />
+                </div>
+            ) : (
+                <div className="rounded-2xl border border-rose-100 bg-white p-6">
+                    <EditProductImageManager
+                        existingImages={existingImages}
+                        newImages={images}
+                        onExistingImagesChange={
+                            setExistingImages
+                        }
+                        onNewImagesChange={
+                            setImages
+                        }
+                        onDeleteExistingImage={
+                            handleDeleteExistingImage
+                        }
+                    />
+                </div>
+            )}
 
             <div className="rounded-2xl border border-rose-100 bg-white p-6">
                 <h2 className="text-lg font-semibold text-gray-900">
@@ -394,11 +491,65 @@ export function ProductForm({
                 >
                     {isLoading
                         ? "Saving..."
-                        : "Save Product"}
+                        : mode === "edit"
+                            ? "Update Product"
+                            : "Save Product"}
                 </Button>
             </div>
         </form>
     );
+
+    function handleDeleteExistingImage(
+        imageToDelete: ProductImage
+    ) {
+        const remainingImages =
+            existingImages.filter(
+                (image) =>
+                    image.id !== imageToDelete.id
+            );
+
+        setDeletedImages((current) => [
+            ...current,
+            imageToDelete,
+        ]);
+
+        const hasPrimary =
+            remainingImages.some(
+                (image) => image.isPrimary
+            ) ||
+            images.some(
+                (image) => image.isPrimary
+            );
+
+        if (
+            !hasPrimary &&
+            remainingImages.length > 0
+        ) {
+            remainingImages[0] = {
+                ...remainingImages[0],
+                isPrimary: true,
+            };
+        }
+
+        if (
+            !hasPrimary &&
+            remainingImages.length === 0 &&
+            images.length > 0
+        ) {
+            setImages((current) =>
+                current.map(
+                    (image, index) => ({
+                        ...image,
+                        isPrimary: index === 0,
+                    })
+                )
+            );
+        }
+
+        setExistingImages(
+            remainingImages
+        );
+    }
 }
 
 type CategoryGroupProps = {

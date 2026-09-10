@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { Product } from "../types/product.types";
 import Image from "next/image";
+import { DeleteProductButton } from "./DeleteProductButton";
 
 type AdminProductsScreenProps = {
     products: Product[];
@@ -127,14 +128,20 @@ export function AdminProductsScreen({
                                         <td className="px-6 py-5 text-sm text-gray-700">
                                             {product.featured ? "Yes" : "No"}
                                         </td>
+                                        <td className="px-6 py-5">
+                                            <div className="flex items-center justify-end gap-4">
+                                                <Link
+                                                    href={`/admin/products/${product.id}/edit`}
+                                                    className="text-sm font-medium text-rose-500 hover:text-rose-600"
+                                                >
+                                                    Edit
+                                                </Link>
 
-                                        <td className="px-6 py-5 text-right">
-                                            <Link
-                                                href={`/admin/products/${product.id}/edit`}
-                                                className="text-sm font-medium text-rose-500 hover:text-rose-600"
-                                            >
-                                                Edit
-                                            </Link>
+                                                <DeleteProductButton
+                                                    productId={product.id}
+                                                    productName={product.name}
+                                                />
+                                            </div>
                                         </td>
                                     </tr>
                                 ))}
