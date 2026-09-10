@@ -6,6 +6,8 @@ type AdminCategoriesScreenProps = {
     categories: Category[];
 };
 
+import { DeleteCategoryButton } from "./DeleteCategoryButton";
+
 const categoryTypes = [
     {
         type: "occasion",
@@ -102,12 +104,19 @@ export function AdminCategoriesScreen({
                                                     </p>
                                                 </div>
 
-                                                <Link
-                                                    href={`/admin/categories/${category.id}/edit`}
-                                                    className="text-sm font-medium text-rose-500 hover:text-rose-600"
-                                                >
-                                                    Edit
-                                                </Link>
+                                                <div className="flex items-center gap-4">
+                                                    <Link
+                                                        href={`/admin/categories/${category.id}/edit`}
+                                                        className="text-sm font-medium text-rose-500 hover:text-rose-600"
+                                                    >
+                                                        Edit
+                                                    </Link>
+
+                                                    <DeleteCategoryButton
+                                                        categoryId={category.id}
+                                                        categoryName={category.name}
+                                                    />
+                                                </div>
                                             </div>
                                         )
                                     )}

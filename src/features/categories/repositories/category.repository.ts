@@ -47,3 +47,25 @@ export async function getCategoryBySlugFromDatabase(
 
   return data;
 }
+export async function getCategoryByIdFromDatabase(
+  categoryId: string
+) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("categories")
+    .select(`
+      id,
+      name,
+      slug,
+      type
+    `)
+    .eq("id", categoryId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
+  }
+
+  return data;
+}
