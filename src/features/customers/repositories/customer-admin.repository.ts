@@ -116,3 +116,53 @@ export async function updateCustomerInDatabase(
       throw new Error(error.message);
     }
   }
+
+  export async function getCustomerOrderUsageFromDatabase(
+    customerId: string
+  ) {
+    const supabase = createClient();
+  
+    const { data, error } =
+      await supabase
+        .from("orders")
+        .select(`
+          id,
+          order_code,
+          status,
+          fulfillment_date
+        `)
+        .eq(
+          "customer_id",
+          customerId
+        )
+        .order("created_at", {
+          ascending: false,
+        });
+  
+    if (error) {
+      throw new Error(
+        error.message
+      );
+    }
+  
+    return {
+      count:
+        data?.length ?? 0,
+  
+      orders:
+        data?.map(
+          (order) => ({
+            id: order.id,
+  
+            orderCode:
+              order.order_code,
+  
+            status:
+              order.status,
+  
+            fulfillmentDate:
+              order.fulfillment_date,
+          })
+        ) ?? [],
+    };
+  }

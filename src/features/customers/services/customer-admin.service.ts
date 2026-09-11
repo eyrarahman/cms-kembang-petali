@@ -1,11 +1,12 @@
 import { mapCustomerFromDatabase } from "../mappers/customer.mapper";
 
 import {
-    createCustomerInDatabase,
-    deleteCustomerFromDatabase,
-    findCustomersByPhoneFromDatabase,
-    updateCustomerInDatabase,
-  } from "../repositories/customer-admin.repository";
+  createCustomerInDatabase,
+  deleteCustomerFromDatabase,
+  findCustomersByPhoneFromDatabase,
+  getCustomerOrderUsageFromDatabase,
+  updateCustomerInDatabase,
+} from "../repositories/customer-admin.repository";
 
 import { CustomerFormData } from "../types/customer-form.types";
 
@@ -88,7 +89,32 @@ export async function checkCustomerPhoneDuplicates(
       );
     }
   
+    const usage =
+      await getCustomerOrderUsageFromDatabase(
+        customerId
+      );
+  
+    if (usage.count > 0) {
+      throw new Error(
+        "This customer has order history and cannot be deleted. Set the customer to Inactive instead."
+      );
+    }
+  
     return deleteCustomerFromDatabase(
+      customerId
+    );
+  }
+
+  export async function getCustomerOrderUsage(
+    customerId: string
+  ) {
+    if (!customerId) {
+      throw new Error(
+        "Customer ID is required."
+      );
+    }
+  
+    return getCustomerOrderUsageFromDatabase(
       customerId
     );
   }
