@@ -1,6 +1,6 @@
 "use client";
 import Link from "next/link";
-
+import type { CSSProperties } from "react";
 import {
     useState,
 } from "react";
@@ -48,24 +48,44 @@ function getEventLabel(
     }
 }
 
-function getEventClassName(
+function getEventStyle(
     event: CalendarEvent
-) {
+): CSSProperties {
     switch (event.type) {
         case "production":
-            return "border-purple-300 bg-purple-100 text-purple-900";
+            return {
+                backgroundColor: "#F3E8FF",
+                borderColor: "#D8B4FE",
+                color: "#581C87",
+            };
 
         case "delivery":
-            return "border-blue-300 bg-blue-100 text-blue-900";
+            return {
+                backgroundColor: "#DBEAFE",
+                borderColor: "#93C5FD",
+                color: "#1E3A8A",
+            };
 
         case "postage":
-            return "border-amber-300 bg-amber-100 text-amber-900";
+            return {
+                backgroundColor: "#FEF3C7",
+                borderColor: "#FCD34D",
+                color: "#92400E",
+            };
 
         case "pickup":
-            return "border-green-300 bg-green-100 text-green-900";
+            return {
+                backgroundColor: "#DCFCE7",
+                borderColor: "#86EFAC",
+                color: "#166534",
+            };
 
         case "blocked":
-            return "border-red-300 bg-red-100 text-red-900";
+            return {
+                backgroundColor: "#FEE2E2",
+                borderColor: "#FCA5A5",
+                color: "#991B1B",
+            };
     }
 }
 
@@ -253,27 +273,27 @@ export function AdminCalendarScreen({
                 <div className="mt-6 flex flex-wrap gap-3">
                     <LegendItem
                         label="Production"
-                        className="border-purple-300 bg-purple-100 text-purple-900"
+                        type="production"
                     />
 
                     <LegendItem
                         label="Delivery"
-                        className="border-blue-300 bg-blue-100 text-blue-900"
+                        type="delivery"
                     />
 
                     <LegendItem
                         label="Postage"
-                        className="border-amber-300 bg-amber-100 text-amber-900"
+                        type="postage"
                     />
 
                     <LegendItem
                         label="Pickup"
-                        className="border-green-300 bg-green-100 text-green-900"
+                        type="pickup"
                     />
 
                     <LegendItem
                         label="Blocked"
-                        className="border-red-300 bg-red-100 text-red-900"
+                        type="blocked"
                     />
                 </div>
 
@@ -404,9 +424,10 @@ export function AdminCalendarScreen({
                                                                 </>
                                                             );
                                                         const className =
-                                                            `block rounded-lg border p-2.5 shadow-sm transition hover:shadow-md ${getEventClassName(
-                                                                event
-                                                            )}`;
+                                                            "block rounded-lg border p-2.5 shadow-sm transition hover:shadow-md";
+
+                                                        const eventStyle =
+                                                            getEventStyle(event);
 
                                                         if (
                                                             event.orderId
@@ -420,6 +441,7 @@ export function AdminCalendarScreen({
                                                                     className={
                                                                         className
                                                                     }
+                                                                    style={eventStyle}
                                                                 >
                                                                     {
                                                                         content
@@ -436,6 +458,7 @@ export function AdminCalendarScreen({
                                                                 className={
                                                                     className
                                                                 }
+                                                                style={eventStyle}
                                                             >
                                                                 {
                                                                     content
@@ -467,16 +490,22 @@ export function AdminCalendarScreen({
 
 type LegendItemProps = {
     label: string;
-    className: string;
+    type: CalendarEvent["type"];
 };
 
 function LegendItem({
     label,
-    className,
+    type,
 }: LegendItemProps) {
     return (
         <span
-            className={`rounded-full border px-3 py-1 text-xs font-medium ${className}`}
+            className="rounded-full border px-3 py-1 text-xs font-medium"
+            style={getEventStyle({
+                id: "",
+                date: "",
+                title: "",
+                type,
+            })}
         >
             {label}
         </span>
@@ -610,9 +639,8 @@ function DailyEventSection({
                                 key={
                                     event.id
                                 }
-                                className={`rounded-xl border p-4 ${getEventClassName(
-                                    event
-                                )}`}
+                                className="rounded-xl border p-4"
+                                style={getEventStyle(event)}
                             >
                                 <p className="text-xs font-bold uppercase">
                                     {getEventLabel(
