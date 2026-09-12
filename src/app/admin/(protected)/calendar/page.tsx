@@ -3,6 +3,10 @@ import { AdminCalendarScreen } from "@/features/calendar/components/AdminCalenda
 import { getCalendarEvents } from "@/features/calendar/services/calendar.service";
 
 import { getCalendarMonthInfo } from "@/features/calendar/utils/calendar.utils";
+import {
+    getCapacityOverrides,
+    getCapacitySettings,
+} from "@/features/capacity/services/capacity.service";
 
 type AdminCalendarPageProps = {
     searchParams: Promise<{
@@ -21,16 +25,52 @@ export default async function AdminCalendarPage({
             params.month
         );
 
-    const events =
-        await getCalendarEvents(
+    const [
+        events,
+        capacitySettings,
+        capacityOverrides,
+    ] = await Promise.all([
+        getCalendarEvents(
             month.gridStartDate,
             month.gridEndDate
+        ),
+
+        getCapacitySettings(),
+
+        getCapacityOverrides(),
+    ]);
+
+    const todayFormatter =
+        new Intl.DateTimeFormat(
+            "en-CA",
+            {
+                timeZone:
+                    "Asia/Kuala_Lumpur",
+
+                year: "numeric",
+                month: "2-digit",
+                day: "2-digit",
+            }
+        );
+
+    const todayDate =
+        todayFormatter.format(
+            new Date()
         );
 
     return (
         <AdminCalendarScreen
             events={events}
             month={month}
+            capacitySettings={
+                capacitySettings
+            }
+            capacityOverrides={
+                capacityOverrides
+            }
+            todayDate={
+                todayDate
+            }
         />
     );
 }

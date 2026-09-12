@@ -2,12 +2,18 @@
 import Link from "next/link";
 import type { CSSProperties } from "react";
 import {
+    useEffect,
+    useRef,
     useState,
 } from "react";
 
 import { getCapacityAvailability } from "@/features/capacity/services/capacity-availability.service";
 
 import { CapacityAvailability } from "@/features/capacity/types/capacity-availability.types";
+import {
+    CapacityOverride,
+    CapacitySettings,
+} from "@/features/capacity/types/capacity.types";
 
 import { CalendarEvent } from "../types/calendar.types";
 import { CalendarMonthInfo } from "../utils/calendar.utils";
@@ -15,6 +21,11 @@ import { CalendarMonthInfo } from "../utils/calendar.utils";
 type AdminCalendarScreenProps = {
     events: CalendarEvent[];
     month: CalendarMonthInfo;
+
+    capacitySettings: CapacitySettings;
+    capacityOverrides: CapacityOverride[];
+
+    todayDate: string;
 };
 
 const weekDays = [
@@ -114,9 +125,62 @@ function formatFullDate(
     );
 }
 
+function getDayCapacity(
+    date: string,
+    events: CalendarEvent[],
+    settings: CapacitySettings,
+    overrides: CapacityOverride[]
+) {
+    const override =
+        overrides.find(
+            (item) =>
+                item.capacityDate === date
+        );
+
+    const fulfillmentEvents =
+        events.filter(
+            (event) =>
+                event.type === "delivery" ||
+                event.type === "postage" ||
+                event.type === "pickup"
+        );
+
+    const bookedOrders =
+        fulfillmentEvents.length;
+
+    const isBlocked =
+        override?.isBlocked ?? false;
+
+    const capacity =
+        isBlocked
+            ? 0
+            : override?.capacity ??
+            settings.defaultDailyCapacity;
+
+    const availableSlots =
+        Math.max(
+            capacity - bookedOrders,
+            0
+        );
+
+    return {
+        capacity,
+        bookedOrders,
+        availableSlots,
+        isBlocked,
+
+        isFull:
+            !isBlocked &&
+            bookedOrders >= capacity,
+    };
+}
+
 export function AdminCalendarScreen({
     events,
     month,
+    capacitySettings,
+    capacityOverrides,
+    todayDate,
 }: AdminCalendarScreenProps) {
 
     const [
@@ -143,6 +207,22 @@ export function AdminCalendarScreen({
         capacityError,
         setCapacityError,
     ] = useState("");
+
+    const dailyOverviewRef =
+        useRef<HTMLElement | null>(
+            null
+        );
+
+    useEffect(() => {
+        if (!selectedDate) {
+            return;
+        }
+
+        dailyOverviewRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+        });
+    }, [selectedDate]);
 
     const eventsByDate =
         events.reduce<
@@ -362,14 +442,25 @@ export function AdminCalendarScreen({
                                         ] ??
                                         [];
 
+                                    const dayCapacity =
+                                        getDayCapacity(
+                                            date,
+                                            dayEvents,
+                                            capacitySettings,
+                                            capacityOverrides
+                                        );
+
+                                    const isToday =
+                                        date === todayDate;
+
                                     return (
                                         <div
-                                            key={
-                                                date
-                                            }
-                                            className={`min-h-44 border-b border-r border-gray-100 p-3 ${isCurrentMonth
-                                                ? "bg-white"
-                                                : "bg-gray-50"
+                                            key={date}
+                                            className={`min-h-44 border-b border-r p-3 ${isToday
+                                                ? "border-rose-200 bg-rose-50/40"
+                                                : isCurrentMonth
+                                                    ? "border-gray-100 bg-white"
+                                                    : "border-gray-100 bg-gray-50"
                                                 }`}
                                         >
                                             <button
@@ -379,18 +470,59 @@ export function AdminCalendarScreen({
                                                         date
                                                     )
                                                 }
-                                                className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold transition ${selectedDate ===
-                                                    date
+                                                className={`flex h-7 w-7 items-center justify-center rounded-full text-sm font-semibold transition ${selectedDate === date
                                                     ? "bg-rose-500 text-white"
-                                                    : isCurrentMonth
-                                                        ? "text-gray-900 hover:bg-rose-50 hover:text-rose-500"
-                                                        : "text-gray-400 hover:bg-gray-100"
+                                                    : isToday
+                                                        ? "bg-rose-100 text-rose-600"
+                                                        : isCurrentMonth
+                                                            ? "text-gray-900 hover:bg-rose-50 hover:text-rose-500"
+                                                            : "text-gray-400 hover:bg-gray-100"
                                                     }`}
                                             >
                                                 {getDayNumber(
                                                     date
                                                 )}
                                             </button>
+
+                                            {isCurrentMonth && (
+                                                <div className="mt-2">
+                                                    {dayCapacity.isBlocked ? (
+                                                        <span
+                                                            className="inline-flex rounded-full border px-2 py-0.5 text-[10px] font-bold"
+                                                            style={{
+                                                                backgroundColor:
+                                                                    "#FEE2E2",
+                                                                borderColor:
+                                                                    "#FCA5A5",
+                                                                color:
+                                                                    "#991B1B",
+                                                            }}
+                                                        >
+                                                            BLOCKED
+                                                        </span>
+                                                    ) : dayCapacity.isFull ? (
+                                                        <span
+                                                            className="inline-flex rounded-full border px-2 py-0.5 text-[10px] font-bold"
+                                                            style={{
+                                                                backgroundColor:
+                                                                    "#FEF3C7",
+                                                                borderColor:
+                                                                    "#FCD34D",
+                                                                color:
+                                                                    "#92400E",
+                                                            }}
+                                                        >
+                                                            {dayCapacity.bookedOrders}/
+                                                            {dayCapacity.capacity} FULL
+                                                        </span>
+                                                    ) : dayCapacity.bookedOrders > 0 ? (
+                                                        <span className="inline-flex rounded-full border border-gray-200 bg-gray-50 px-2 py-0.5 text-[10px] font-semibold text-gray-600">
+                                                            {dayCapacity.bookedOrders}/
+                                                            {dayCapacity.capacity} booked
+                                                        </span>
+                                                    ) : null}
+                                                </div>
+                                            )}
 
                                             <div className="mt-3 space-y-2">
                                                 {dayEvents.map(
@@ -477,9 +609,115 @@ export function AdminCalendarScreen({
                 </div>
 
                 {/* DAILY OVERVIEW */}
+                {/* DAILY OVERVIEW */}
                 {selectedDate && (
-                    <section className="mt-6 rounded-2xl border border-rose-100 bg-white p-6">
-                        {/* current Daily Overview code you */}
+                    <section
+                        ref={dailyOverviewRef}
+                        className="mt-6 scroll-mt-6 rounded-2xl border border-rose-100 bg-white p-6"
+                    >
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+                            <div>
+                                <p className="text-sm font-medium uppercase tracking-[0.2em] text-rose-500">
+                                    Daily Overview
+                                </p>
+
+                                <h2 className="mt-2 text-2xl font-bold text-gray-900">
+                                    {formatFullDate(
+                                        selectedDate
+                                    )}
+                                </h2>
+                            </div>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setSelectedDate(
+                                        null
+                                    );
+
+                                    setSelectedCapacity(
+                                        null
+                                    );
+                                }}
+                                className="text-sm font-medium text-gray-400 hover:text-gray-600"
+                            >
+                                Close
+                            </button>
+                        </div>
+
+                        {/* CAPACITY */}
+                        <div className="mt-6 rounded-xl border border-gray-100 bg-gray-50 p-5">
+                            <h3 className="font-semibold text-gray-900">
+                                Capacity
+                            </h3>
+
+                            {isLoadingCapacity ? (
+                                <p className="mt-3 text-sm text-gray-400">
+                                    Loading capacity...
+                                </p>
+                            ) : capacityError ? (
+                                <p className="mt-3 text-sm text-red-500">
+                                    Unable to load capacity:{" "}
+                                    {capacityError}
+                                </p>
+                            ) : selectedCapacity ? (
+                                <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-3">
+                                    <CapacityBox
+                                        label="Capacity"
+                                        value={
+                                            selectedCapacity.isBlocked
+                                                ? "Blocked"
+                                                : String(
+                                                    selectedCapacity.capacity
+                                                )
+                                        }
+                                    />
+
+                                    <CapacityBox
+                                        label="Booked"
+                                        value={String(
+                                            selectedCapacity.bookedOrders
+                                        )}
+                                    />
+
+                                    <CapacityBox
+                                        label="Available"
+                                        value={
+                                            selectedCapacity.isBlocked
+                                                ? "0"
+                                                : String(
+                                                    selectedCapacity.availableSlots
+                                                )
+                                        }
+                                    />
+                                </div>
+                            ) : null}
+
+                            {selectedCapacity?.isBlocked && (
+                                <div className="mt-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+                                    This date is blocked.
+                                    {selectedCapacity.notes
+                                        ? ` ${selectedCapacity.notes}`
+                                        : ""}
+                                </div>
+                            )}
+
+                            {selectedCapacity?.isFull &&
+                                !selectedCapacity.isBlocked && (
+                                    <div className="mt-4 rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-700">
+                                        This date is fully booked.
+                                    </div>
+                                )}
+                        </div>
+
+                        {/* DAILY EVENTS */}
+                        <DailyEvents
+                            events={
+                                eventsByDate[
+                                selectedDate
+                                ] ?? []
+                            }
+                        />
                     </section>
                 )}
 
@@ -566,6 +804,27 @@ function DailyEvents({
                 "blocked"
         );
 
+    const deliveryEvents =
+        events.filter(
+            (event) =>
+                event.type ===
+                "delivery"
+        );
+
+    const postageEvents =
+        events.filter(
+            (event) =>
+                event.type ===
+                "postage"
+        );
+
+    const pickupEvents =
+        events.filter(
+            (event) =>
+                event.type ===
+                "pickup"
+        );
+
     if (events.length === 0) {
         return (
             <div className="mt-6 rounded-xl border border-dashed border-gray-200 p-8 text-center">
@@ -578,30 +837,64 @@ function DailyEvents({
     }
 
     return (
-        <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <DailyEventSection
-                title="Production"
-                events={
-                    productionEvents
-                }
-            />
+        <div className="mt-6">
+            {/* DAILY BREAKDOWN */}
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-4">
+                <DailyCountBox
+                    label="Production"
+                    value={
+                        productionEvents.length
+                    }
+                />
 
-            <DailyEventSection
-                title="Fulfilment"
-                events={
-                    fulfillmentEvents
-                }
-            />
+                <DailyCountBox
+                    label="Delivery"
+                    value={
+                        deliveryEvents.length
+                    }
+                />
 
-            {blockedEvents.length >
-                0 && (
-                    <DailyEventSection
-                        title="Blocked"
-                        events={
-                            blockedEvents
-                        }
-                    />
-                )}
+                <DailyCountBox
+                    label="Postage"
+                    value={
+                        postageEvents.length
+                    }
+                />
+
+                <DailyCountBox
+                    label="Pickup"
+                    value={
+                        pickupEvents.length
+                    }
+                />
+            </div>
+
+            {/* EVENTS */}
+            <div className="mt-6 grid grid-cols-1 gap-6 lg:grid-cols-2">
+                <DailyEventSection
+                    title="Production"
+                    events={
+                        productionEvents
+                    }
+                />
+
+                <DailyEventSection
+                    title="Fulfilment"
+                    events={
+                        fulfillmentEvents
+                    }
+                />
+
+                {blockedEvents.length >
+                    0 && (
+                        <DailyEventSection
+                            title="Blocked"
+                            events={
+                                blockedEvents
+                            }
+                        />
+                    )}
+            </div>
         </div>
     );
 }
@@ -683,6 +976,28 @@ function DailyEventSection({
                     )}
                 </div>
             )}
+        </div>
+    );
+}
+
+type DailyCountBoxProps = {
+    label: string;
+    value: number;
+};
+
+function DailyCountBox({
+    label,
+    value,
+}: DailyCountBoxProps) {
+    return (
+        <div className="rounded-xl border border-gray-100 bg-gray-50 p-4">
+            <p className="text-xs font-medium uppercase tracking-wide text-gray-400">
+                {label}
+            </p>
+
+            <p className="mt-2 text-2xl font-bold text-gray-900">
+                {value}
+            </p>
         </div>
     );
 }
