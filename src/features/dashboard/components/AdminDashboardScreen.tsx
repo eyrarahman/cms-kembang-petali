@@ -4,6 +4,7 @@ import { DashboardData } from "../types/dashboard.types";
 
 type AdminDashboardScreenProps = {
     data: DashboardData;
+    businessName: string;
 };
 
 function formatDate(
@@ -67,6 +68,7 @@ function formatLabel(
 
 export function AdminDashboardScreen({
     data,
+    businessName,
 }: AdminDashboardScreenProps) {
     return (
         <main className="px-8 py-12 lg:px-12">
@@ -75,7 +77,7 @@ export function AdminDashboardScreen({
                 <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
                     <div>
                         <p className="text-sm font-medium uppercase tracking-[0.25em] text-rose-500">
-                            Kembang Petali
+                            {businessName}
                         </p>
 
                         <h1 className="mt-3 text-4xl font-bold text-gray-900">
@@ -552,8 +554,8 @@ export function AdminDashboardScreen({
                                 </h2>
 
                                 <p className="mt-1 text-sm text-gray-500">
-                                    Latest orders added to
-                                    Kembang Petali.
+                                    Latest orders added to{" "}
+                                    {businessName}.
                                 </p>
                             </div>
 

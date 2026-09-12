@@ -10,19 +10,23 @@ import { ShopByOccasion } from "./ShopByOccasion";
 type HomeScreenProps = {
     featuredProducts: Product[];
     categories: Category[];
+    businessName: string;
 };
 
 export function HomeScreen({
     featuredProducts,
     categories,
+    businessName,
 }: HomeScreenProps) {
     return (
         <main className="min-h-screen bg-rose-50">
-            <Navbar />
+            <Navbar
+                businessName={businessName}
+            />
 
             <section className="flex min-h-[calc(100vh-73px)] flex-col items-center justify-center px-6 text-center">
                 <p className="mb-4 text-sm font-medium uppercase tracking-[0.3em] text-rose-500">
-                    Kembang Petali
+                    {businessName}
                 </p>
 
                 <h1 className="max-w-3xl text-4xl font-bold text-gray-900 sm:text-6xl">

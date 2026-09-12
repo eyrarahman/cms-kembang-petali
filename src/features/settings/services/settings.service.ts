@@ -8,6 +8,8 @@ import {
     BusinessSettingsInput,
 } from "../types/settings.types";
 
+import { createWhatsappUrl } from "../utils/whatsapp.utils";
+
 function normalizeOptionalText(
     value: string | null
 ) {
@@ -116,36 +118,52 @@ export async function updateBusinessSettings(
     }
 
     const cleanedInput: BusinessSettingsInput =
-        {
-            businessName,
+    {
+        businessName,
 
-            whatsappNumber,
+        whatsappNumber,
 
-            contactEmail:
-                input.contactEmail.trim(),
+        contactEmail:
+            input.contactEmail.trim(),
 
-            businessAddress:
-                input.businessAddress.trim(),
+        businessAddress:
+            input.businessAddress.trim(),
 
-            instagramHandle:
-                input.instagramHandle.trim(),
+        instagramHandle:
+            input.instagramHandle.trim(),
 
-            tiktokHandle:
-                input.tiktokHandle.trim(),
+        tiktokHandle:
+            input.tiktokHandle.trim(),
 
-            defaultPrepDays:
-                input.defaultPrepDays,
+        defaultPrepDays:
+            input.defaultPrepDays,
 
-            deliveryInfo:
-                input.deliveryInfo.trim(),
+        deliveryInfo:
+            input.deliveryInfo.trim(),
 
-            postageInfo:
-                input.postageInfo.trim(),
-        };
+        postageInfo:
+            input.postageInfo.trim(),
+    };
 
     await updateBusinessSettingsInDatabase(
         cleanedInput
     );
 
     return getBusinessSettings();
+}
+
+export async function getBusinessWhatsappUrl(
+    message?: string
+) {
+    const settings =
+        await getBusinessSettings();
+
+    if (!settings.whatsappNumber) {
+        return undefined;
+    }
+
+    return createWhatsappUrl(
+        settings.whatsappNumber,
+        message
+    );
 }

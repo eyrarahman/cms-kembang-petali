@@ -1,23 +1,33 @@
 import Link from "next/link";
 import { Product } from "../types/product.types";
 import { Button } from "@/components/ui/Button";
+import { getBusinessSettings } from "@/features/settings/services/settings.service";
+import { createWhatsappUrl } from "@/features/settings/utils/whatsapp.utils";
 
 type ProductDetailScreenProps = {
     product: Product;
 };
 
-const whatsappNumber = "60123507834";
 
-export function ProductDetailScreen({
+
+export async function ProductDetailScreen({
     product,
 }: ProductDetailScreenProps) {
-    const whatsappMessage = `Hi Kembang Petali, saya berminat dengan ${product.name} (RM ${product.price.toFixed(
-        2
-    )}). Boleh saya tahu availability?`;
+    const settings =
+        await getBusinessSettings();
 
-    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(
-        whatsappMessage
-    )}`;
+    const whatsappMessage =
+        `Hi ${settings.businessName}, saya berminat dengan ${product.name} ` +
+        `(RM ${product.price.toFixed(2)}). ` +
+        `Boleh saya tahu availability?`;
+
+    const whatsappUrl =
+        settings.whatsappNumber
+            ? createWhatsappUrl(
+                settings.whatsappNumber,
+                whatsappMessage
+            )
+            : undefined;
 
     return (
         <main className="min-h-screen bg-rose-50 px-6 py-12">
@@ -38,7 +48,7 @@ export function ProductDetailScreen({
 
                     <div className="flex flex-col justify-center">
                         <p className="text-sm font-medium uppercase tracking-[0.25em] text-rose-500">
-                            Kembang Petali
+                            {settings.businessName}
                         </p>
 
                         <h1 className="mt-4 text-4xl font-bold text-gray-900 sm:text-5xl">
@@ -72,16 +82,57 @@ export function ProductDetailScreen({
                             </div>
                         </div>
 
+                        {(settings.deliveryInfo ||
+                            settings.postageInfo) && (
+                                <div className="mt-8 rounded-2xl border border-rose-100 bg-white p-5">
+                                    <p className="font-semibold text-gray-900">
+                                        Delivery & Postage
+                                    </p>
+
+                                    <div className="mt-4 space-y-4 text-sm leading-6 text-gray-600">
+                                        {settings.deliveryInfo && (
+                                            <div>
+                                                <p className="font-medium text-gray-900">
+                                                    Delivery
+                                                </p>
+
+                                                <p className="mt-1 whitespace-pre-line">
+                                                    {settings.deliveryInfo}
+                                                </p>
+                                            </div>
+                                        )}
+
+                                        {settings.postageInfo && (
+                                            <div>
+                                                <p className="font-medium text-gray-900">
+                                                    Postage
+                                                </p>
+
+                                                <p className="mt-1 whitespace-pre-line">
+                                                    {settings.postageInfo}
+                                                </p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            )}
+
                         <div className="mt-10 flex flex-col gap-4 sm:flex-row">
-                            <a
-                                href={whatsappUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                            >
-                                <Button>
-                                    Order via WhatsApp
+                            {whatsappUrl ? (
+                                <a
+                                    href={whatsappUrl}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                >
+                                    <Button>
+                                        Order via WhatsApp
+                                    </Button>
+                                </a>
+                            ) : (
+                                <Button disabled>
+                                    WhatsApp Unavailable
                                 </Button>
-                            </a>
+                            )}
                             <Link href="/catalog">
                                 <Button variant="secondary">
                                     Back to Catalog
