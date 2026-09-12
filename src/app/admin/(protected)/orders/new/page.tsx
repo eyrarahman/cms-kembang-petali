@@ -2,6 +2,7 @@ import { OrderForm } from "@/features/orders/components/OrderForm";
 
 import { getCustomers } from "@/features/customers/services/customer.service";
 import { getAdminProducts } from "@/features/products/services/product.service";
+import { getBusinessSettings } from "@/features/settings/services/settings.service";
 
 export default async function NewOrderPage() {
     const [
@@ -25,6 +26,9 @@ export default async function NewOrderPage() {
                 product.status !==
                 "hidden"
         );
+
+    const settings =
+        await getBusinessSettings();
 
     return (
         <main className="px-8 py-12 lg:px-12">
@@ -65,6 +69,12 @@ export default async function NewOrderPage() {
                         products={
                             selectableProducts
                         }
+
+                        defaultPrepDays={
+                            settings.defaultPrepDays
+                        }
+
+
                     />
                 )}
             </div>

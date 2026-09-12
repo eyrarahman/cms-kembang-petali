@@ -33,6 +33,8 @@ type OrderFormProps = {
 
     mode?: "create" | "edit";
     order?: OrderDetail;
+
+    defaultPrepDays?: number;
 };
 
 type OrderItemInput = {
@@ -117,6 +119,7 @@ export function OrderForm({
     products,
     mode = "create",
     order,
+    defaultPrepDays = 3
 
 
 }: OrderFormProps) {
@@ -184,12 +187,15 @@ export function OrderForm({
         setAllowCapacityOverride,
     ] = useState(false);
 
-    const [prepDays, setPrepDays] =
-        useState(
-            String(
-                order?.prepDays ?? 3
-            )
-        );
+    const [
+        prepDays,
+        setPrepDays,
+    ] = useState(
+        mode === "edit"
+            ? order?.prepDays ??
+            defaultPrepDays
+            : defaultPrepDays
+    );
 
     const [
         fulfillmentAddress,
@@ -1248,16 +1254,16 @@ export function OrderForm({
                             min="0"
                             max="30"
                             value={prepDays}
-                            onChange={(
-                                event
-                            ) =>
+                            onChange={(event) =>
                                 setPrepDays(
-                                    event.target
-                                        .value
+                                    Number(
+                                        event.target.value
+                                    )
                                 )
+                            
                             }
-                            required
-                            className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-rose-400"
+                        required
+                        className="w-full rounded-xl border border-gray-300 bg-white px-4 py-3 text-gray-900 outline-none focus:border-rose-400"
                         />
 
                         {productionStartDate && (
