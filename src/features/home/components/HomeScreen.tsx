@@ -53,6 +53,7 @@ export function HomeScreen({
 
             <FeaturedProducts
                 products={featuredProducts}
+                businessName={businessName}
             />
 
             <ShopByOccasion

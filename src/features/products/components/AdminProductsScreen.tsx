@@ -5,7 +5,7 @@ import Image from "next/image";
 import { DeleteProductButton } from "./DeleteProductButton";
 
 type AdminProductsScreenProps = {
-    products: Product[];
+    products: Product[]; businessName: string;
 };
 
 function getStatusLabel(status: Product["status"]) {
@@ -26,6 +26,7 @@ function getStatusLabel(status: Product["status"]) {
 
 export function AdminProductsScreen({
     products,
+    businessName,
 }: AdminProductsScreenProps) {
     return (
         <main className="px-8 py-12 lg:px-12">
@@ -41,7 +42,7 @@ export function AdminProductsScreen({
                         </h1>
 
                         <p className="mt-3 text-gray-600">
-                            Manage products displayed in the Kembang Petali catalog.
+                            Manage products displayed in the {businessName} catalog.
                         </p>
                     </div>
 

@@ -4,10 +4,12 @@ import { Product } from "@/features/products/types/product.types";
 
 type FeaturedProductsProps = {
     products: Product[];
+    businessName: string;
 };
 
 export function FeaturedProducts({
     products,
+    businessName,
 }: FeaturedProductsProps) {
     return (
         <section className="bg-white px-6 py-20">
@@ -15,7 +17,7 @@ export function FeaturedProducts({
                 <SectionHeader
                     eyebrow="Our Collection"
                     title="Featured Products"
-                    description="Pilihan produk istimewa daripada Kembang Petali."
+                    description={`Pilihan produk istimewa daripada ${businessName}.`}
                 />
 
                 <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">

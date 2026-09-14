@@ -8,11 +8,12 @@ import { Category } from "../types/category.types";
 type CategoryScreenProps = {
     category: Category;
     products: Product[];
+    businessName: string;
 };
 
 export function CategoryScreen({
     category,
-    products,
+    products, businessName
 }: CategoryScreenProps) {
     return (
         <main className="min-h-screen bg-rose-50 px-6 py-20">
@@ -34,7 +35,7 @@ export function CategoryScreen({
                     </h1>
 
                     <p className="mt-4 text-gray-600">
-                        Explore produk Kembang Petali untuk{" "}
+                        Explore produk {businessName} untuk{" "}
                         {category.name.toLowerCase()}.
                     </p>
                 </div>

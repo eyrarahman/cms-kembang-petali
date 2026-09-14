@@ -6,7 +6,14 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/Button";
 import { signInAdmin } from "../services/auth.service";
 
-export function AdminLoginForm() {
+
+type AdminLoginFormProps = {
+    businessName: string;
+};
+
+export function AdminLoginForm({
+    businessName,
+}: AdminLoginFormProps) {
     const router = useRouter();
 
     const [email, setEmail] = useState("");
@@ -46,15 +53,14 @@ export function AdminLoginForm() {
         >
             <div className="mb-8">
                 <p className="text-sm font-medium uppercase tracking-[0.25em] text-rose-500">
-                    Kembang Petali
+                    {businessName}
                 </p>
 
                 <h1 className="mt-3 text-3xl font-bold text-gray-900">
                     Admin Login
                 </h1>
-
                 <p className="mt-2 text-sm text-gray-500">
-                    Sign in to manage Kembang Petali.
+                    Sign in to manage {businessName}.
                 </p>
             </div>
 

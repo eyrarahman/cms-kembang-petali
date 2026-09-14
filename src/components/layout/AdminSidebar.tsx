@@ -48,7 +48,13 @@ const menuItems = [
     },
 ];
 
-export function AdminSidebar() {
+type AdminSidebarProps = {
+    businessName: string;
+};
+
+export function AdminSidebar({
+    businessName,
+}: AdminSidebarProps) {
     const pathname = usePathname();
 
     return (
@@ -58,7 +64,7 @@ export function AdminSidebar() {
                     href="/admin/dashboard"
                     className="text-xl font-bold text-rose-500"
                 >
-                    Kembang Petali
+                    {businessName}
                 </Link>
 
                 <p className="mt-1 text-xs text-gray-400">

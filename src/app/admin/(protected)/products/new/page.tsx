@@ -1,10 +1,15 @@
 import { ProductForm } from "@/features/products/components/ProductForm";
 import { getCategories } from "@/features/categories/services/category.service";
+import { getBusinessSettings } from "@/features/settings/services/settings.service";
 
 export default async function NewProductPage() {
-    const categories =
-        await getCategories();
-
+    const [
+        categories,
+        settings,
+    ] = await Promise.all([
+        getCategories(),
+        getBusinessSettings(),
+    ]);
     return (
         <main className="px-8 py-12 lg:px-12">
             <div className="mx-auto max-w-5xl">
@@ -18,8 +23,8 @@ export default async function NewProductPage() {
                     </h1>
 
                     <p className="mt-3 text-gray-600">
-                        Add a new product to the
-                        Kembang Petali catalog.
+                        Add a new product to the{" "}
+                        {settings.businessName} catalog.
                     </p>
                 </div>
 

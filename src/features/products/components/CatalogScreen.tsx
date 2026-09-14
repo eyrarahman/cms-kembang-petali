@@ -12,11 +12,13 @@ import { ProductCard } from "./ProductCard";
 type CatalogScreenProps = {
     products: Product[];
     categories: Category[];
+    businessName: string;
 };
 
 export function CatalogScreen({
     products,
     categories,
+    businessName,
 }: CatalogScreenProps) {
     const {
         searchQuery,
@@ -60,14 +62,14 @@ export function CatalogScreen({
 
     return (
         <main className="min-h-screen bg-rose-50">
-            <Navbar />
+            <Navbar businessName={businessName} />
 
             <section className="px-6 py-16">
                 <div className="mx-auto max-w-7xl">
                     <SectionHeader
                         eyebrow="Our Collection"
                         title="Catalog"
-                        description="Explore koleksi produk daripada Kembang Petali."
+                        description={`Explore koleksi produk daripada ${businessName}.`}
                     />
 
                     <CatalogFilters
