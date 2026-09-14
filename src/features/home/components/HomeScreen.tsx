@@ -45,9 +45,11 @@ export function HomeScreen({
                         </Button>
                     </Link>
 
-                    <Button variant="secondary">
-                        Contact Us
-                    </Button>
+                    <Link href="/contact">
+                        <Button variant="secondary">
+                            Contact Us
+                        </Button>
+                    </Link>
                 </div>
             </section>
 

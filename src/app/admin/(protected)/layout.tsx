@@ -2,8 +2,9 @@ import { ReactNode } from "react";
 import { redirect } from "next/navigation";
 
 import { AdminSidebar } from "@/components/layout/AdminSidebar";
-import { createClient } from "@/lib/supabase/server";
+
 import { getBusinessSettings } from "@/features/settings/services/settings.service";
+import { createClient } from "@/lib/supabase/server";
 
 type AdminProtectedLayoutProps = {
     children: ReactNode;
@@ -12,15 +13,33 @@ type AdminProtectedLayoutProps = {
 export default async function AdminProtectedLayout({
     children,
 }: AdminProtectedLayoutProps) {
-    const supabase = await createClient();
+    const supabase =
+        await createClient();
 
     const { data, error } =
         await supabase.auth.getClaims();
 
-    const userId = data?.claims?.sub;
+    const userId =
+        data?.claims?.sub;
 
     if (error || !userId) {
         redirect("/admin/login");
+    }
+
+    const {
+        data: isAdmin,
+        error: adminError,
+    } = await supabase.rpc(
+        "is_admin"
+    );
+
+    if (
+        adminError ||
+        !isAdmin
+    ) {
+        redirect(
+            "/admin/unauthorized"
+        );
     }
 
     const settings =

@@ -20,14 +20,26 @@ export function FeaturedProducts({
                     description={`Pilihan produk istimewa daripada ${businessName}.`}
                 />
 
-                <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
-                    {products.map((product) => (
-                        <ProductCard
-                            key={product.id}
-                            product={product}
-                        />
-                    ))}
-                </div>
+                {products.length > 0 ? (
+                    <div className="mt-10 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        {products.map((product) => (
+                            <ProductCard
+                                key={product.id}
+                                product={product}
+                            />
+                        ))}
+                    </div>
+                ) : (
+                    <div className="mt-10 rounded-2xl border border-rose-100 bg-rose-50 p-10 text-center">
+                        <p className="font-medium text-gray-700">
+                            No featured products yet.
+                        </p>
+
+                        <p className="mt-2 text-sm text-gray-500">
+                            More special products will be available soon.
+                        </p>
+                    </div>
+                )}
             </div>
         </section>
     );

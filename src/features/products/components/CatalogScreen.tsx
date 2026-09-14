@@ -99,7 +99,11 @@ export function CatalogScreen({
 
                     <div className="mt-8">
                         <p className="text-sm text-gray-500">
-                            {filteredProducts.length} product(s) found
+                            {filteredProducts.length}{" "}
+                            {filteredProducts.length === 1
+                                ? "product"
+                                : "products"}{" "}
+                            found
                         </p>
                     </div>
 
@@ -112,10 +116,20 @@ export function CatalogScreen({
                                 />
                             ))}
                         </div>
+                    ) : products.length === 0 ? (
+                        <div className="mt-6 rounded-2xl border border-rose-100 bg-white p-10 text-center">
+                            <p className="font-medium text-gray-700">
+                                No products available yet.
+                            </p>
+
+                            <p className="mt-2 text-sm text-gray-500">
+                                Our collection will be updated soon.
+                            </p>
+                        </div>
                     ) : (
                         <div className="mt-6 rounded-2xl border border-rose-100 bg-white p-10 text-center">
                             <p className="font-medium text-gray-700">
-                                No products found.
+                                No matching products found.
                             </p>
 
                             <p className="mt-2 text-sm text-gray-500">
@@ -125,7 +139,7 @@ export function CatalogScreen({
                             <button
                                 type="button"
                                 onClick={clearFilters}
-                                className="mt-4 text-sm font-medium text-rose-500"
+                                className="mt-4 text-sm font-medium text-rose-500 hover:text-rose-600"
                             >
                                 Clear Filters
                             </button>
