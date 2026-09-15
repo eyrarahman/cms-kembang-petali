@@ -164,21 +164,19 @@ export function AdminMaterialsScreen({
                                             </td>
 
                                             <td className="px-6 py-5 text-right">
-                                                <td className="px-6 py-5">
-                                                    <div className="flex items-center justify-end gap-4">
-                                                        <Link
-                                                            href={`/admin/materials/${material.id}/edit`}
-                                                            className="text-sm font-medium text-rose-500 hover:text-rose-600"
-                                                        >
-                                                            Edit
-                                                        </Link>
+                                                <div className="flex items-center justify-end gap-4">
+                                                    <Link
+                                                        href={`/admin/materials/${material.id}/edit`}
+                                                        className="text-sm font-medium text-rose-500 hover:text-rose-600"
+                                                    >
+                                                        Edit
+                                                    </Link>
 
-                                                        <DeleteMaterialButton
-                                                            materialId={material.id}
-                                                            materialName={material.name}
-                                                        />
-                                                    </div>
-                                                </td>
+                                                    <DeleteMaterialButton
+                                                        materialId={material.id}
+                                                        materialName={material.name}
+                                                    />
+                                                </div>
                                             </td>
                                         </tr>
                                     )
