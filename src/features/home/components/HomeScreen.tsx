@@ -6,6 +6,7 @@ import { Product } from "@/features/products/types/product.types";
 import { Category } from "@/features/categories/types/category.types";
 import { FeaturedProducts } from "./FeaturedProducts";
 import { ShopByOccasion } from "./ShopByOccasion";
+import Image from "next/image";
 
 type HomeScreenProps = {
     featuredProducts: Product[];
@@ -22,34 +23,54 @@ export function HomeScreen({
         <main className="min-h-screen bg-rose-50">
             <Navbar
                 businessName={businessName}
+                variant="hero"
             />
 
-            <section className="flex min-h-[calc(100vh-73px)] flex-col items-center justify-center px-6 text-center">
-                <p className="mb-4 text-sm font-medium uppercase tracking-[0.3em] text-rose-500">
-                    {businessName}
-                </p>
+            <section className="relative overflow-hidden bg-[#9f3658]">
+                <div className="mx-auto grid min-h-[620px] max-w-7xl grid-cols-1 items-center lg:grid-cols-[0.85fr_1.15fr]">
+                    {/* LEFT CONTENT */}
+                    <div className="relative z-10 px-6 py-16 sm:px-10 lg:px-6 lg:py-20">
 
-                <h1 className="max-w-3xl text-4xl font-bold text-gray-900 sm:text-6xl">
-                    Hadiah Istimewa Untuk Insan Tersayang
-                </h1>
+                        <h1 className="mt-5 max-w-xl text-5xl font-bold leading-[0.95] text-white sm:text-6xl lg:text-7xl">
+                            Hadiah Istimewa
+                            <span className="block text-rose-100">
+                                Untuk Insan
+                            </span>
+                            <span className="block">
+                                Tersayang.
+                            </span>
+                        </h1>
 
-                <p className="mt-6 max-w-xl text-lg text-gray-600">
-                    Pilih produk kegemaran anda untuk graduation, birthday,
-                    anniversary dan pelbagai lagi majlis istimewa.
-                </p>
+                        <p className="mt-7 max-w-md text-base leading-7 text-rose-100/90 sm:text-lg">
+                            Menguntumkan bahagia dalam setiap momen istimewa.
+                            Hadiah penuh makna untuk meraikan insan dan
+                            kenangan yang berharga.
+                        </p>
 
-                <div className="mt-8 flex flex-col gap-4 sm:flex-row">
-                    <Link href="/catalog">
-                        <Button>
-                            Browse Catalog
-                        </Button>
-                    </Link>
+                        <div className="mt-9">
+                            <Link
+                                href="/catalog"
+                                className="inline-flex items-center gap-4 rounded-xl bg-rose-50 px-6 py-3.5 text-sm font-semibold text-[#9f3658] transition hover:bg-white"
+                            >
+                                Browse Catalog
+                                <span aria-hidden="true">
+                                    →
+                                </span>
+                            </Link>
+                        </div>
+                    </div>
 
-                    <Link href="/contact">
-                        <Button variant="secondary">
-                            Contact Us
-                        </Button>
-                    </Link>
+                    {/* RIGHT IMAGE */}
+                    <div className="relative min-h-[420px] self-stretch lg:min-h-[620px]">
+                        <Image
+                            src="/assets/products/banner-page.png"
+                            alt="Kembang Petali bouquet"
+                            fill
+                            priority
+                            sizes="(max-width: 1024px) 100vw, 58vw"
+                            className="object-contain object-right-bottom lg:translate-x-8 lg:scale-[1.12] lg:origin-bottom"
+                        />
+                    </div>
                 </div>
             </section>
 

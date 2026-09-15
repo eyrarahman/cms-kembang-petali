@@ -3,6 +3,7 @@ import { Product } from "../types/product.types";
 import { Button } from "@/components/ui/Button";
 import { getBusinessSettings } from "@/features/settings/services/settings.service";
 import { createWhatsappUrl } from "@/features/settings/utils/whatsapp.utils";
+import { ProductImageGallery } from "./ProductImageGallery";
 
 type ProductDetailScreenProps = {
     product: Product;
@@ -40,10 +41,12 @@ export async function ProductDetailScreen({
                 </Link>
 
                 <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-2">
-                    <div className="flex aspect-square items-center justify-center rounded-3xl bg-rose-100">
-                        <span className="text-sm font-medium text-rose-400">
-                            Product Image
-                        </span>
+                    <div className="mt-10 grid grid-cols-1 gap-14 lg:grid-cols-[1.2fr_0.8fr]">
+                        <ProductImageGallery
+                            images={product.images}
+                            mainImage={product.mainImage}
+                            productName={product.name}
+                        />
                     </div>
 
                     <div className="flex flex-col justify-center">
