@@ -4,32 +4,35 @@ export async function getProductRecipesFromDatabase() {
   const supabase = await createClient();
 
   const { data, error } = await supabase
-    .from("products")
+    .from("product_recipes")
     .select(`
       id,
-      product_code,
       name,
-      selling_price,
+      product_id,
+      reference_image_path,
+      labor_cost,
+      wastage_percent,
+      other_cost,
+      target_margin_percent,
 
-      product_recipes (
+      products (
         id,
-        labor_cost,
-        wastage_percent,
-        other_cost,
-        target_margin_percent,
+        product_code,
+        name,
+        selling_price
+      ),
 
-        product_recipe_items (
+      product_recipe_items (
+        id,
+        quantity,
+        sort_order,
+
+        materials (
           id,
-          quantity,
-          sort_order,
-
-          materials (
-            id,
-            name,
-            purchase_price,
-            purchase_quantity,
-            base_unit
-          )
+          name,
+          purchase_price,
+          purchase_quantity,
+          base_unit
         )
       )
     `)
@@ -43,34 +46,39 @@ export async function getProductRecipesFromDatabase() {
 
   return data;
 }
-export async function getRecipeByProductIdFromDatabase(
-    productId: string
-  ) {
-    const supabase = await createClient();
-  
-    const { data, error } = await supabase
-      .from("product_recipes")
-      .select(`
+
+
+export async function getRecipeByIdFromDatabase(
+  recipeId: string
+) {
+  const supabase = await createClient();
+
+  const { data, error } = await supabase
+    .from("product_recipes")
+    .select(`
+      id,
+      name,
+      product_id,
+      reference_image_path,
+      labor_cost,
+      wastage_percent,
+      other_cost,
+      target_margin_percent,
+      notes,
+
+      product_recipe_items (
         id,
-        labor_cost,
-        wastage_percent,
-        other_cost,
-        target_margin_percent,
-        notes,
-  
-        product_recipe_items (
-          id,
-          material_id,
-          quantity,
-          sort_order
-        )
-      `)
-      .eq("product_id", productId)
-      .maybeSingle();
-  
-    if (error) {
-      throw new Error(error.message);
-    }
-  
-    return data;
+        material_id,
+        quantity,
+        sort_order
+      )
+    `)
+    .eq("id", recipeId)
+    .maybeSingle();
+
+  if (error) {
+    throw new Error(error.message);
   }
+
+  return data;
+}

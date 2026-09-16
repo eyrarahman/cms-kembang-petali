@@ -58,6 +58,14 @@ export async function createProductInDatabase(
       .single();
 
     if (productError) {
+      if (
+        productError.code === "23505"
+      ) {
+        throw new Error(
+          "A product with this slug already exists. Please use a different slug."
+        );
+      }
+
       throw new Error(
         productError.message
       );
@@ -163,18 +171,20 @@ export async function createProductInDatabase(
     }
 
     // 4. Save image information
-    const {
-      error: imageDatabaseError,
-    } = await supabase
-      .from("product_images")
-      .insert(
-        productImageRows
-      );
+    if (productImageRows.length > 0) {
+      const {
+        error: imageDatabaseError,
+      } = await supabase
+        .from("product_images")
+        .insert(
+          productImageRows
+        );
 
-    if (imageDatabaseError) {
-      throw new Error(
-        imageDatabaseError.message
-      );
+      if (imageDatabaseError) {
+        throw new Error(
+          imageDatabaseError.message
+        );
+      }
     }
 
     return product;
@@ -310,6 +320,14 @@ export async function updateProductInDatabase(
       .single();
 
     if (productError) {
+      if (
+        productError.code === "23505"
+      ) {
+        throw new Error(
+          "A product with this slug already exists. Please use a different slug."
+        );
+      }
+
       throw new Error(
         productError.message
       );

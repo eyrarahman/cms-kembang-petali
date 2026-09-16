@@ -1,7 +1,7 @@
 import {
-    ProductRecipe,
-    ProductRecipeSummary,
-  } from "../types/recipe.types";
+  ProductRecipe,
+  ProductRecipeSummary,
+} from "../types/recipe.types";
 
 type MaterialDatabaseRow = {
   id: string;
@@ -17,33 +17,38 @@ type RecipeItemDatabaseRow = {
   sort_order: number;
 
   materials:
-    | MaterialDatabaseRow
-    | MaterialDatabaseRow[]
-    | null;
+  | MaterialDatabaseRow
+  | MaterialDatabaseRow[]
+  | null;
+};
+
+type ProductDatabaseRow = {
+  id: string;
+  product_code: string;
+  name: string;
+  selling_price: number;
 };
 
 type RecipeDatabaseRow = {
   id: string;
+  name: string;
+
+  product_id: string | null;
+  reference_image_path: string | null;
+
   labor_cost: number;
   wastage_percent: number;
   other_cost: number;
   target_margin_percent: number;
 
+  products:
+  | ProductDatabaseRow
+  | ProductDatabaseRow[]
+  | null;
+
   product_recipe_items:
-    | RecipeItemDatabaseRow[]
-    | null;
-};
-
-type ProductRecipeDatabaseRow = {
-  id: string;
-  product_code: string;
-  name: string;
-  selling_price: number;
-
-  product_recipes:
-    | RecipeDatabaseRow
-    | RecipeDatabaseRow[]
-    | null;
+  | RecipeItemDatabaseRow[]
+  | null;
 };
 
 function getSingleRelation<T>(
@@ -61,26 +66,12 @@ function getSingleRelation<T>(
 }
 
 export function mapProductRecipeSummary(
-  product: ProductRecipeDatabaseRow
+  recipe: RecipeDatabaseRow
 ): ProductRecipeSummary {
-  const sellingPrice =
-    Number(product.selling_price);
-
-  const recipe =
+  const product =
     getSingleRelation(
-      product.product_recipes
+      recipe.products
     );
-
-  if (!recipe) {
-    return {
-      productId: product.id,
-      productCode:
-        product.product_code,
-      productName:
-        product.name,
-      sellingPrice,
-    };
-  }
 
   const materialCost =
     recipe.product_recipe_items?.reduce(
@@ -104,9 +95,7 @@ export function mapProductRecipeSummary(
             material.purchase_quantity
           );
 
-        if (
-          purchaseQuantity <= 0
-        ) {
+        if (purchaseQuantity <= 0) {
           return total;
         }
 
@@ -114,12 +103,10 @@ export function mapProductRecipeSummary(
           purchasePrice /
           purchaseQuantity;
 
-        const itemCost =
-          unitCost *
-          Number(item.quantity);
-
         return (
-          total + itemCost
+          total +
+          unitCost *
+          Number(item.quantity)
         );
       },
       0
@@ -158,107 +145,138 @@ export function mapProductRecipeSummary(
   const suggestedPrice =
     targetMarginPercent < 100
       ? totalCost /
-        (1 -
-          targetMarginPercent /
-            100)
+      (
+        1 -
+        targetMarginPercent / 100
+      )
       : 0;
+
+  const sellingPrice =
+    product
+      ? Number(
+        product.selling_price
+      )
+      : undefined;
 
   const estimatedProfit =
-    sellingPrice - totalCost;
+    sellingPrice !== undefined
+      ? sellingPrice -
+      totalCost
+      : undefined;
 
   const actualMarginPercent =
-    sellingPrice > 0
-      ? (estimatedProfit /
-          sellingPrice) *
-        100
-      : 0;
+    sellingPrice !== undefined &&
+      sellingPrice > 0
+      ? (
+        (sellingPrice -
+          totalCost) /
+        sellingPrice
+      ) * 100
+      : undefined;
 
   return {
+    id: recipe.id,
+
+    name: recipe.name,
+
     productId:
-      product.id,
+      product?.id,
 
     productCode:
-      product.product_code,
+      product?.product_code,
 
     productName:
-      product.name,
+      product?.name,
 
     sellingPrice,
 
-    recipe: {
-      id: recipe.id,
+    referenceImagePath:
+      recipe.reference_image_path ??
+      undefined,
 
-      laborCost,
-      wastagePercent,
-      otherCost,
-      targetMarginPercent,
+    laborCost,
+    wastagePercent,
+    otherCost,
+    targetMarginPercent,
 
-      materialCost,
-      wastageCost,
-      totalCost,
-      suggestedPrice,
-    },
+    materialCost,
+    wastageCost,
+    totalCost,
+    suggestedPrice,
 
     estimatedProfit,
     actualMarginPercent,
   };
 }
 type ProductRecipeDetailDatabaseRow = {
+  id: string;
+  name: string;
+  product_id: string | null;
+  reference_image_path: string | null;
+  labor_cost: number;
+  wastage_percent: number;
+  other_cost: number;
+  target_margin_percent: number;
+  notes: string | null;
+
+  product_recipe_items:
+  | {
     id: string;
-    labor_cost: number;
-    wastage_percent: number;
-    other_cost: number;
-    target_margin_percent: number;
-    notes: string | null;
-  
-    product_recipe_items:
-      | {
-          id: string;
-          material_id: string;
-          quantity: number;
-          sort_order: number;
-        }[]
-      | null;
+    material_id: string;
+    quantity: number;
+    sort_order: number;
+  }[]
+  | null;
+};
+
+export function mapProductRecipeFromDatabase(
+  recipe: ProductRecipeDetailDatabaseRow
+): ProductRecipe {
+  return {
+    id: recipe.id,
+
+    name: recipe.name,
+
+    productId:
+      recipe.product_id ??
+      undefined,
+
+    referenceImagePath:
+      recipe.reference_image_path ??
+      undefined,
+
+    laborCost:
+      Number(recipe.labor_cost),
+
+    wastagePercent:
+      Number(recipe.wastage_percent),
+
+    otherCost:
+      Number(recipe.other_cost),
+
+    targetMarginPercent:
+      Number(
+        recipe.target_margin_percent
+      ),
+
+    notes:
+      recipe.notes ?? undefined,
+
+    items:
+      recipe.product_recipe_items
+        ?.map((item) => ({
+          id: item.id,
+          materialId:
+            item.material_id,
+          quantity:
+            Number(item.quantity),
+          sortOrder:
+            item.sort_order,
+        }))
+        .sort(
+          (a, b) =>
+            a.sortOrder -
+            b.sortOrder
+        ) ?? [],
   };
-  
-  export function mapProductRecipeFromDatabase(
-    recipe: ProductRecipeDetailDatabaseRow
-  ): ProductRecipe {
-    return {
-      id: recipe.id,
-  
-      laborCost:
-        Number(recipe.labor_cost),
-  
-      wastagePercent:
-        Number(recipe.wastage_percent),
-  
-      otherCost:
-        Number(recipe.other_cost),
-  
-      targetMarginPercent:
-        Number(
-          recipe.target_margin_percent
-        ),
-  
-      notes:
-        recipe.notes ?? undefined,
-  
-      items:
-        recipe.product_recipe_items
-          ?.map((item) => ({
-            id: item.id,
-            materialId:
-              item.material_id,
-            quantity:
-              Number(item.quantity),
-            sortOrder:
-              item.sort_order,
-          }))
-          .sort(
-            (a, b) =>
-              a.sortOrder -
-              b.sortOrder
-          ) ?? [],
-    };
-  }
+}

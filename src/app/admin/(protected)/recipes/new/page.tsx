@@ -1,35 +1,15 @@
-import { notFound } from "next/navigation";
-
 import { RecipeForm } from "@/features/recipes/components/RecipeForm";
-
 import { getMaterials } from "@/features/materials/services/material.service";
-import { getAdminProductById } from "@/features/products/services/product.service";
+import { getCategories } from "@/features/categories/services/category.service";
 
-type NewRecipePageProps = {
-    params: Promise<{
-        productId: string;
-    }>;
-};
-
-export default async function NewRecipePage({
-    params,
-}: NewRecipePageProps) {
-    const { productId } =
-        await params;
-
-    const [
-        product,
-        allMaterials,
-    ] = await Promise.all([
-        getAdminProductById(
-            productId
-        ),
-        getMaterials(),
-    ]);
-
-    if (!product) {
-        notFound();
-    }
+export default async function NewRecipePage() {
+  const [
+    allMaterials,
+    categories,
+] = await Promise.all([
+    getMaterials(),
+    getCategories(),
+]);
 
     const activeMaterials =
         allMaterials.filter(
@@ -51,25 +31,21 @@ export default async function NewRecipePage({
                     </h1>
 
                     <p className="mt-3 text-gray-600">
-                        Define the materials and
-                        production cost for this
-                        product.
+                        Create a product costing
+                        recipe and calculate material
+                        and production costs.
                     </p>
                 </div>
 
-                {activeMaterials.length >
-                    0 ? (
-                    <RecipeForm
-                        product={product}
-                        materials={
-                            activeMaterials
-                        }
-                    />
+                {activeMaterials.length > 0 ? (
+<RecipeForm
+    materials={activeMaterials}
+    categories={categories}
+/>
                 ) : (
                     <div className="mt-10 rounded-2xl border border-rose-100 bg-white p-8">
                         <p className="font-semibold text-gray-900">
-                            No active materials
-                            available.
+                            No active materials available.
                         </p>
 
                         <p className="mt-2 text-sm text-gray-500">

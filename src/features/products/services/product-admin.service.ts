@@ -30,23 +30,6 @@ export async function createProduct(
     );
   }
 
-  if (formData.images.length === 0) {
-    throw new Error(
-      "Please upload at least one product image."
-    );
-  }
-
-  const hasPrimaryImage =
-    formData.images.some(
-      (image) => image.isPrimary
-    );
-
-  if (!hasPrimaryImage) {
-    throw new Error(
-      "Please select a main product image."
-    );
-  }
-
   return createProductInDatabase(
     formData
   );
@@ -79,20 +62,14 @@ export async function updateProduct(
     ...formData.newImages,
   ];
 
-  if (allImages.length === 0) {
-    throw new Error(
-      "Product must have at least one image."
-    );
-  }
-
   const primaryImageCount =
     allImages.filter(
       (image) => image.isPrimary
     ).length;
 
-  if (primaryImageCount !== 1) {
+  if (primaryImageCount > 1) {
     throw new Error(
-      "Product must have exactly one main image."
+      "Product can only have one main image."
     );
   }
 

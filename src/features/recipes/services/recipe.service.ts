@@ -1,35 +1,35 @@
 import {
-    mapProductRecipeFromDatabase,
-    mapProductRecipeSummary,
-  } from "../mappers/recipe.mapper";
-  
-  import {
-    getProductRecipesFromDatabase,
-    getRecipeByProductIdFromDatabase,
-  } from "../repositories/recipe.repository";
+  mapProductRecipeFromDatabase,
+  mapProductRecipeSummary,
+} from "../mappers/recipe.mapper";
+
+import {
+  getProductRecipesFromDatabase,
+  getRecipeByIdFromDatabase,
+} from "../repositories/recipe.repository";
 
 export async function getProductRecipeSummaries() {
-  const products =
+  const recipes =
     await getProductRecipesFromDatabase();
 
-  return products.map(
+  return recipes.map(
     mapProductRecipeSummary
   );
 }
 
-export async function getRecipeByProductId(
-    productId: string
-  ) {
-    const recipe =
-      await getRecipeByProductIdFromDatabase(
-        productId
-      );
-  
-    if (!recipe) {
-      return null;
-    }
-  
-    return mapProductRecipeFromDatabase(
-      recipe
+export async function getRecipeById(
+  recipeId: string
+) {
+  const recipe =
+    await getRecipeByIdFromDatabase(
+      recipeId
     );
+
+  if (!recipe) {
+    return null;
   }
+
+  return mapProductRecipeFromDatabase(
+    recipe
+  );
+}
