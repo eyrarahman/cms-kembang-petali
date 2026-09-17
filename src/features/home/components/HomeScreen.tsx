@@ -27,7 +27,7 @@ export function HomeScreen({
             />
 
             <section className="relative overflow-hidden bg-[#9f3658]">
-                <div className="mx-auto grid min-h-[620px] max-w-7xl grid-cols-1 items-center lg:grid-cols-[0.85fr_1.15fr]">
+                <div className="mx-auto grid min-h-155 max-w-7xl grid-cols-1 items-center lg:grid-cols-[0.85fr_1.15fr]">
                     {/* LEFT CONTENT */}
                     <div className="relative z-10 px-6 py-16 sm:px-10 lg:px-6 lg:py-20">
 
@@ -61,14 +61,14 @@ export function HomeScreen({
                     </div>
 
                     {/* RIGHT IMAGE */}
-                    <div className="relative min-h-[420px] self-stretch lg:min-h-[620px]">
+                    <div className="relative min-h-105 self-stretch lg:min-h-155">
                         <Image
                             src="/assets/products/banner-page.png"
                             alt="Kembang Petali bouquet"
                             fill
                             priority
                             sizes="(max-width: 1024px) 100vw, 58vw"
-                            className="object-contain object-right-bottom lg:translate-x-8 lg:scale-[1.12] lg:origin-bottom"
+                            className="object-contain object-bottom-right scale-[0.85] lg:translate-x-8 origin-bottom"
                         />
                     </div>
                 </div>

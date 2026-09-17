@@ -451,9 +451,11 @@ export function RecipeForm({
 
     useEffect(() => {
         if (!referenceImage) {
-            setReferenceImagePreview(
-                null
-            );
+            setTimeout(() => {
+                setReferenceImagePreview(
+                    null
+                );
+            }, 0);
             return;
         }
 
@@ -462,9 +464,11 @@ export function RecipeForm({
                 referenceImage
             );
 
-        setReferenceImagePreview(
-            objectUrl
-        );
+        setTimeout(() => {
+            setReferenceImagePreview(
+                objectUrl
+            );
+        }, 0);
 
         return () => {
             URL.revokeObjectURL(
@@ -478,9 +482,11 @@ export function RecipeForm({
             !recipe?.referenceImagePath ||
             referenceImage
         ) {
-            setExistingReferenceImageUrl(
-                null
-            );
+            setTimeout(() => {
+                setExistingReferenceImageUrl(
+                    null
+                );
+            }, 0);
             return;
         }
 
@@ -495,9 +501,11 @@ export function RecipeForm({
                 recipe.referenceImagePath
             );
 
-        setExistingReferenceImageUrl(
-            data.publicUrl
-        );
+        setTimeout(() => {
+            setExistingReferenceImageUrl(
+                data.publicUrl
+            );
+        }, 0);
     }, [
         recipe?.referenceImagePath,
         referenceImage,
