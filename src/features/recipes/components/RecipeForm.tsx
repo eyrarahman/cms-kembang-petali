@@ -236,7 +236,7 @@ export function RecipeForm({
             ? String(
                 recipe.targetMarginPercent
             )
-            : "30"
+            : "0"
     );
 
     const [notes, setNotes] =
