@@ -12,23 +12,31 @@ export function ProductCard({
 }: ProductCardProps) {
     return (
         <article className="overflow-hidden rounded-2xl border border-rose-100 bg-white shadow-sm">
-            <div className="relative aspect-square overflow-hidden bg-rose-100">
-                {product.mainImage ? (
-                    <Image
-                        src={product.mainImage.url}
-                        alt={product.mainImage.altText ?? product.name}
-                        fill
-                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
-                        className="object-cover"
-                    />
-                ) : (
-                    <div className="flex h-full items-center justify-center">
-                        <span className="text-sm text-rose-400">
-                            No image
-                        </span>
-                    </div>
-                )}
-            </div>
+            <Link
+                href={`/product/${product.slug}`}
+                className="block"
+            >
+                <div className="relative aspect-square overflow-hidden bg-rose-100">
+                    {product.mainImage ? (
+                        <Image
+                            src={product.mainImage.url}
+                            alt={
+                                product.mainImage.altText ??
+                                product.name
+                            }
+                            fill
+                            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 25vw"
+                            className="object-cover transition-transform duration-300 hover:scale-[1.02]"
+                        />
+                    ) : (
+                        <div className="flex h-full items-center justify-center">
+                            <span className="text-sm text-rose-400">
+                                No image
+                            </span>
+                        </div>
+                    )}
+                </div>
+            </Link>
 
             <div className="p-5">
                 <h3 className="text-lg font-semibold text-gray-900">

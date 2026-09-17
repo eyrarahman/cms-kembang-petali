@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { getBusinessSettings } from "@/features/settings/services/settings.service";
 import { createWhatsappUrl } from "@/features/settings/utils/whatsapp.utils";
 import { ProductImageGallery } from "./ProductImageGallery";
+import { ProductDetailBackButton } from "./ProductDetailBackButton";
 
 type ProductDetailScreenProps = {
     product: Product;
@@ -33,15 +34,10 @@ export async function ProductDetailScreen({
     return (
         <main className="min-h-screen bg-rose-50 px-6 py-12">
             <div className="mx-auto max-w-7xl">
-                <Link
-                    href="/"
-                    className="text-sm font-medium text-rose-500"
-                >
-                    ← Back to Home
-                </Link>
+                <ProductDetailBackButton />
 
                 <div className="mt-10 grid grid-cols-1 gap-10 lg:grid-cols-2">
-                    <div className="mt-10 grid grid-cols-1 gap-14 lg:grid-cols-[1.2fr_0.8fr]">
+                    <div className="mt-10 lg:mt-0 lg:w-full">
                         <ProductImageGallery
                             images={product.images}
                             mainImage={product.mainImage}
