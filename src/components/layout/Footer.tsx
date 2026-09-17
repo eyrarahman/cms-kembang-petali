@@ -186,7 +186,7 @@ export async function Footer() {
                                 >
                                     <Image
                                         src="/assets/social/whatsapp.png"
-                                        alt="WhatsApp"
+                                        alt="whatsapp"
                                         width={20}
                                         height={20}
                                         className="shrink-0"
