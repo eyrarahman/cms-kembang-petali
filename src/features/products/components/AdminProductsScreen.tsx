@@ -1,5 +1,7 @@
-import Link from "next/link";
+"use client";
 
+import Link from "next/link";
+import { useState } from "react";
 import { Product } from "../types/product.types";
 import Image from "next/image";
 import { DeleteProductButton } from "./DeleteProductButton";
@@ -28,6 +30,45 @@ export function AdminProductsScreen({
     products,
     businessName,
 }: AdminProductsScreenProps) {
+
+    const [search, setSearch] =
+        useState("");
+
+    const [statusFilter, setStatusFilter] =
+        useState<
+            | "all"
+            | "available"
+            | "pre_order"
+            | "sold_out"
+            | "hidden"
+        >("all");
+
+    const filteredProducts =
+        products.filter((product) => {
+            const keyword =
+                search
+                    .trim()
+                    .toLowerCase();
+
+            const matchesSearch =
+                !keyword ||
+                product.name
+                    .toLowerCase()
+                    .includes(keyword) ||
+                product.productCode
+                    .toLowerCase()
+                    .includes(keyword);
+
+            const matchesStatus =
+                statusFilter === "all" ||
+                product.status ===
+                statusFilter;
+
+            return (
+                matchesSearch &&
+                matchesStatus
+            );
+        });
     return (
         <main className="px-8 py-12 lg:px-12">
             <div className="mx-auto max-w-7xl">
@@ -52,6 +93,67 @@ export function AdminProductsScreen({
                     >
                         + Add Product
                     </Link>
+                </div>
+
+                <div className="mt-8 grid grid-cols-1 gap-4 md:grid-cols-[1fr_220px]">
+                    <div>
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                            Search Product
+                        </label>
+
+                        <input
+                            type="text"
+                            value={search}
+                            onChange={(event) =>
+                                setSearch(
+                                    event.target.value
+                                )
+                            }
+                            placeholder="Search by product name or product code..."
+                            className="h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 outline-none transition focus:border-rose-400"
+                        />
+                    </div>
+
+                    <div>
+                        <label className="mb-2 block text-sm font-medium text-gray-700">
+                            Status
+                        </label>
+
+                        <select
+                            value={statusFilter}
+                            onChange={(event) =>
+                                setStatusFilter(
+                                    event.target.value as
+                                    | "all"
+                                    | "available"
+                                    | "pre_order"
+                                    | "sold_out"
+                                    | "hidden"
+                                )
+                            }
+                            className="h-12 w-full rounded-xl border border-gray-300 bg-white px-4 text-gray-900 outline-none transition focus:border-rose-400"
+                        >
+                            <option value="all">
+                                All Statuses
+                            </option>
+
+                            <option value="available">
+                                Available
+                            </option>
+
+                            <option value="pre_order">
+                                Pre-order
+                            </option>
+
+                            <option value="sold_out">
+                                Sold Out
+                            </option>
+
+                            <option value="hidden">
+                                Hidden
+                            </option>
+                        </select>
+                    </div>
                 </div>
 
                 <div className="mt-10 overflow-hidden rounded-2xl border border-rose-100 bg-white">
@@ -82,7 +184,7 @@ export function AdminProductsScreen({
                             </thead>
 
                             <tbody className="divide-y divide-gray-100">
-                                {products.map((product) => (
+                                {filteredProducts.map((product) => (
                                     <tr key={product.id}>
                                         <td className="px-6 py-5">
                                             <div className="flex items-center gap-4">
@@ -150,9 +252,11 @@ export function AdminProductsScreen({
                         </table>
                     </div>
 
-                    {products.length === 0 && (
+                    {filteredProducts.length === 0 && (
                         <div className="p-10 text-center text-gray-500">
-                            No products found.
+                            {search
+                                ? "No matching products found."
+                                : "No products found."}
                         </div>
                     )}
                 </div>
