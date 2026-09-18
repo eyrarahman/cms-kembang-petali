@@ -83,20 +83,6 @@ export default async function ContactPage() {
                             />
                         )}
 
-                        {settings.businessAddress && (
-                            <div className="rounded-2xl border border-rose-100 bg-white p-6">
-                                <p className="text-sm font-medium uppercase tracking-wide text-rose-500">
-                                    Address
-                                </p>
-
-                                <p className="mt-3 whitespace-pre-line text-gray-700">
-                                    {
-                                        settings.businessAddress
-                                    }
-                                </p>
-                            </div>
-                        )}
-
                         {instagramUrl && (
                             <ContactCard
                                 title="Instagram"
